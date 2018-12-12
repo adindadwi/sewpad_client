@@ -42,7 +42,7 @@ class Tutorial extends REST_Controller {
     }
   }
 
-  function =utUser(){
+  function putUser(){
       $id = $this->put('id');
       $data = array(
             'username'   => $this->put('username'),
@@ -134,7 +134,7 @@ class Tutorial extends REST_Controller {
     }
   }
 
-  function index_putStep(){
+  function putStep(){
       $idStep = $this->put('idStep');
       $data = array(
             //  'idStep'     => $this->put('idStep'),
@@ -152,7 +152,7 @@ class Tutorial extends REST_Controller {
       }
   }
 
-  function index_deleteStep(){
+  function deleteStep(){
       $idStep = $this->get('idStep');
       $this->db->where('idStep',$idStep);
       $delete = $this->db->delete('step');
@@ -178,7 +178,7 @@ class Tutorial extends REST_Controller {
     }
   }
 
-  function index_putKomentar(){
+  function putKomentar(){
       $idKomentar = $this->put('idKomentar');
       $data = array(
              'komentar'   => $this->put('komentar')
@@ -193,7 +193,7 @@ class Tutorial extends REST_Controller {
       }
   }
 
-  function index_deleteKomentar(){
+  function deleteKomentar(){
       $idKomentar = $this->get('idKomentar');
       $this->db->where('idKomentar',$idKomentar);
       $delete = $this->db->delete('komentar');
