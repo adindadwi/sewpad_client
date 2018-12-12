@@ -1,3 +1,4 @@
+
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
@@ -16,19 +17,16 @@ class Tutorial extends REST_Controller {
         // $this->load->library('pagination','form_validation');
         $this->load->database();
     }
-    
-    function index_getUser(){
-    $id = $this->get('id');
-    if ($id == '') {
-        $home = $this->db->get('users')->result();
-    }else{
-        $this->db->where('id',$id);
-        $home = $this->db->get('users')->result();
-    }
-    $this->response($contact,200);
-  }
 
-   function index_postUser(){
+   function getIndex(){
+     $this->db->select('username,password,company'); //opsi select
+     $this->db->from('users');
+     $this->db->join('tutorial','tutorial.idUser = users.id');
+     $this->db->join('step','step.tutorial_id = tutorial.idTutorial');
+     $this->db->join('komentar','komentar.idKomentar = users.user_id = tutorial.tutorial_id');
+   }
+
+   function postUser(){
     $data = array(
             'username'   => $this->post('username'),
             'email' => $this->post('email'),
@@ -44,7 +42,7 @@ class Tutorial extends REST_Controller {
     }
   }
 
-  function index_putUser(){
+  function =utUser(){
       $id = $this->put('id');
       $data = array(
             'username'   => $this->put('username'),
@@ -63,7 +61,7 @@ class Tutorial extends REST_Controller {
       }
   }
 
-  function index_deleteUser(){
+  function deleteUser(){
       $id = $this->get('id');
       $this->db->where('id',$id);
       $delete = $this->db->delete('users');
@@ -76,23 +74,10 @@ class Tutorial extends REST_Controller {
 
   }    
 
-  // function index_getTutorial(){
-  //   $id = $this->get('id');
-  //   if ($id == '') {
-  //       $contact = $this->db->get('telephone')->result();
-
-  //   }else{
-  //       $this->db->where('id',$id);
-  //       $contact = $this->db->get('telephone')->result();
-  //   }
-  //   $this->response($contact,200);
-  // }
-
-   function index_postTutorial(){
+   function postTutorial(){
     $data = array(
-            // 'idUser' => $this->post('idUser');
             'nama_tutorial'  => $this->post('nama_tutorial'),
-            'kat_id' => $this->post('kat_id'),
+            // 'kat_id' => $this->post('kat_id'),
             'photo_hasil' => $this->post('photo_hasil'),
     );
     $insert = $this->db->insert('tutorial',$data);
@@ -103,15 +88,15 @@ class Tutorial extends REST_Controller {
     }
   }
 
-  function index_putTutorial(){
-      $idUser = $this->put('idUser');
+  function putTutorial(){
+      $idTutorial = $this->put('idTutorial');
       $data = array(
-            'idUser' => $this->put('idUser');
+            // 'idUser' => $this->put('idUser');
             'nama_tutorial'  => $this->put('nama_tutorial'),
-            'kat_id' => $this->put('kat_id'),
+            // 'kat_id' => $this->put('kat_id'),
             'photo_hasil' => $this->put('photo_hasil'),
       );
-      $this->db->where('id',$id);
+      $this->db->where('idTutorial',$idTutorial);
       $update = $this->db->update('tutorial',$data);
 
       if ($update) {
@@ -121,9 +106,9 @@ class Tutorial extends REST_Controller {
       }
   }
 
-  function index_deleteTutorial(){
-      $idUser = $this->get('idUser');
-      $this->db->where('idUser',$idUser);
+  function deleteTutorial(){
+    $idTutorial = $this->get('idTutorial');
+    $this->db->where('idUTutorial',$idTutorial);
       $delete = $this->db->delete('tutorial');
 
       if ($delete) {
@@ -134,21 +119,9 @@ class Tutorial extends REST_Controller {
 
   }
 
-  // function index_getStep(){
-  //   $id = $this->get('id');
-  //   if ($id == '') {
-  //       $contact = $this->db->get('telephone')->result();
-
-  //   }else{
-  //       $this->db->where('id',$id);
-  //       $contact = $this->db->get('telephone')->result();
-  //   }
-  //   $this->response($contact,200);
-  // }
-
-   function index_postStep(){
+   function postStep(){
     $data = array(
-            'tutorial_id' => $this->post('tutorial_id'),
+            // 'tutorial_id' => $this->post('tutorial_id'),
             'step'   => $this->post('step'),
             'photo' => $this->post('photo')
     );
@@ -164,12 +137,12 @@ class Tutorial extends REST_Controller {
   function index_putStep(){
       $idStep = $this->put('idStep');
       $data = array(
-             'idUser'     => $this->put('idUser'),
-             'tutorial_id' => $this->put('tutorial_id'),
+            //  'idStep'     => $this->put('idStep'),
+            //  'tutorial_id' => $this->put('tutorial_id'),
              'step'   => $this->put('step'),
              'photo' => $this->put('photo')
       );
-      $this->db->where('id',$id);
+      $this->db->where('idStep',$idStep);
       $update = $this->db->update('step',$data);
 
       if ($update) {
@@ -183,6 +156,47 @@ class Tutorial extends REST_Controller {
       $idStep = $this->get('idStep');
       $this->db->where('idStep',$idStep);
       $delete = $this->db->delete('step');
+
+      if ($delete) {
+        $this->response(array('status' => 'success'),201);
+      }else {
+        $this->response(array('status' => 'fail'),502);
+      }
+
+  }
+
+  function postKomentar(){
+    $data = array(
+            'komentar'   => $this->post('komentar')
+    );
+    $insert = $this->db->insert('komentar',$data);
+
+    if ($insert) {
+        $this->response($data,200);
+    }else{
+         $this->response(array('status' => 'fail',502));
+    }
+  }
+
+  function index_putKomentar(){
+      $idKomentar = $this->put('idKomentar');
+      $data = array(
+             'komentar'   => $this->put('komentar')
+      );
+      $this->db->where('idKomentar',$idKomentar);
+      $update = $this->db->update('idKomentar',$data);
+
+      if ($update) {
+        $this->response($data,200);
+      }else{
+        $this->response(array('status' => 'fail',502));
+      }
+  }
+
+  function index_deleteKomentar(){
+      $idKomentar = $this->get('idKomentar');
+      $this->db->where('idKomentar',$idKomentar);
+      $delete = $this->db->delete('komentar');
 
       if ($delete) {
         $this->response(array('status' => 'success'),201);
