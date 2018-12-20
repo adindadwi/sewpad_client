@@ -1,124 +1,87 @@
-
 <?php
-defined('BASEPATH') OR exit('No direct script access allowed');
-
-
-require APPPATH . '/libraries/REST_Controller.php';
-use Restserver\Libraries\REST_Controller;
-
-class Tutorial extends REST_Controller {
-
-    public function __construct($config = 'rest')
-    {
-        parent::__construct($config);
-        //Do your magic here
-        // $this->load->helper('url','form');
-        // $this->load->model('Tutorial_model');
-        // $this->load->library('pagination','form_validation');
-        $this->load->database();
+Class Tutorial extends CI_Controller{
+   
+    var $API ="";
+   
+    function __construct() {
+        parent::__construct();
+        $this->API="http://localhost/sewpad_server/index.php";
     }
-
-    function getTutorial(){
-      $idTutorial = $this->get('idTutorial');
-      if ($idTutorial == '') {
-          $tutorial = $this->db->get('tutorial')->result();
-  
-      }else{
-          $this->db->where('idTutorial',$idTutorial);
-          $tutorial = $this->db->get('tutorial')->result();
-      }
-      $this->response($tutorial,200);
-   }
-
-  //  function post(){
-  //   $data = array(
-  //           'username'   => $this->post('username'),
-  //           'email' => $this->post('email'),
-  //           'password' => $this->post('password'),
-  //           'company' => $this->post('company'),
-  //           'photo ' => $this->post('photo')
-  //   );
-  //   $insert = $this->db->insert('users',$data);
-  //   if ($insert) {
-  //       $this->response($data,200);
-  //   }else{
-  //        $this->response(array('status' => 'fail',502));
-  //   }
-  // }
-
-  // function putUser(){
-  //     $id = $this->put('id');
-  //     $data = array(
-  //           'username'   => $this->put('username'),
-  //           'email' => $this->put('email'),
-  //           'password' => $this->put('password'),
-  //           'company' => $this->put('company'),
-  //           'photo ' => $this->put('photo')
-  //     );
-  //     $this->db->where('id',$id);
-  //     $update = $this->db->update('users',$data);
-
-  //     if ($update) {
-  //       $this->response($data,200);
-  //     }else{
-  //       $this->response(array('status' => 'fail',502));
-  //     }
-  // }
-
-  // function deleteUser(){
-  //     $id = $this->get('id');
-  //     $this->db->where('id',$id);
-  //     $delete = $this->db->delete('users');
-
-  //     if ($delete) {
-  //       $this->response(array('status' => 'success'),201);
-  //     }else {
-  //       $this->response(array('status' => 'fail'),502);
-  //     }
-
-  // }    
-
-   function postTutorial(){
-    $data = array(
-            'nama_tutorial'  => $this->post('nama_tutorial'),
-            // 'kat_id' => $this->post('kat_id'),
-            'photo_hasil' => $this->post('photo_hasil'),
-    );
-    $insert = $this->db->insert('tutorial',$data);
-    if ($insert) {
-        $this->response($data,200);
-    }else{
-         $this->response(array('status' => 'fail',502));
+   
+    // menampilkan data tutorial
+    function index(){
+        $data['tutorial'] = json_decode($this->curl->simple_get($this->API.'/tutorial'));
+        $this->load->view('tutorial/show',$data);
     }
-  }
-
-  function putTutorial(){
-      $idTutorial = $this->put('idTutorial');
-      $data = array(
-            // 'idUser' => $this->put('idUser');
-            'nama_tutorial'  => $this->put('nama_tutorial'),
-            // 'kat_id' => $this->put('kat_id'),
-            'photo_hasil' => $this->put('photo_hasil'),
-      );
-      $this->db->where('idTutorial',$idTutorial);
-      $update = $this->db->update('tutorial',$data);
-
-      if ($update) {
-        $this->response($data,200);
-      }else{
-        $this->response(array('status' => 'fail',502));
-      }
-  }
-
-  function deleteTutorial(){
-    $idTutorial = $this->get('idTutorial');
-    $this->db->where('idUTutorial',$idTutorial);
-      $delete = $this->db->delete('tutorial');
-
-      if ($delete) {
-        $this->response(array('status' => 'success'),201);
-      }else {
-        $this->response(array('status' => 'fail'),502);
-      }
-  }
+   
+    // insert data tutorial
+    function create(){
+        if(isset($_POST['submit'])){
+            $data = array(
+                'idTutorial'    => $this->input->post('idTutorial'),
+                'idUser'        => $this->input->post('idUser'),
+                'tanggal'       => $this->input->post('tanggal'),
+                'komentar_id'   => $this->input->post('komentar_id'),
+                'photo_hasil'   => $this->input->post('photo_hasil'),
+                'nama_tutorial' => $this->input->post('nama_tutorial'),
+                'kat_id'        => $this->input->post('kat_id'));
+            $insert =  $this->curl->simple_post($this->API.'/tutorial', $data, array(CURLOPT_BUFFERSIZE => 10));
+            if($insert)
+            {
+                $this->session->set_flashdata('hasil','Insert Data Berhasil');
+            }else
+            {
+               $this->session->set_flashdata('hasil','Insert Data Gagal');
+            }
+            redirect('tutorial');
+        }else{
+            $data['users'] = json_decode($this->curl->simple_get($this->API.'/users'));
+            $this->load->view('tutorial/create',$data);
+        }
+    }
+   
+    // edit data tutorial
+    function edit(){
+        if(isset($_POST['submit'])){
+            $data = array(
+                'idTutorial'    => $this->input->post('idTutorial'),
+                'idUser'        => $this->input->post('idUser'),
+                'tanggal'       => $this->input->post('tanggal'),
+                'komentar_id'   => $this->input->post('komentar_id'),
+                'photo_hasil'   => $this->input->post('photo_hasil'),
+                'nama_tutorial' => $this->input->post('nama_tutorial'),
+                'kat_id'        => $this->input->post('kat_id'));
+            $update =  $this->curl->simple_put($this->API.'/tutorial', $data, array(CURLOPT_BUFFERSIZE => 10));
+            if($update)
+            {
+                $this->session->set_flashdata('hasil','Update Data Berhasil');
+            }else
+            {
+               $this->session->set_flashdata('hasil','Update Data Gagal');
+            }
+            redirect('tutorial');
+        }else{
+            $data['users'] = json_decode($this->curl->simple_get($this->API.'/users'));
+            $params = array('idTutorial'=>  $this->uri->segment(3));
+            $data['tutorial'] = json_decode($this->curl->simple_get($this->API.'/tutorial',$params));
+            $this->load->view('tutorial/update',$data);
+        }
+    }
+   
+    // delete data tutorial
+    function delete($idTutorial){
+        if(empty($idTutorial)){
+            redirect('tutorial');
+        }else{
+            $delete =  $this->curl->simple_delete($this->API.'/tutorial', array('idTutorial'=>$idTutorial), array(CURLOPT_BUFFERSIZE => 10));
+            if($delete)
+            {
+                $this->session->set_flashdata('hasil','Delete Data Berhasil');
+            }else
+            {
+               $this->session->set_flashdata('hasil','Delete Data Gagal');
+            }
+            redirect('tutorial');
+        }
+    }
 }
